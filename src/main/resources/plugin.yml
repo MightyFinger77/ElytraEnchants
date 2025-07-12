@@ -1,0 +1,42 @@
+name: ElytraEnchants
+version: '${project.version}'
+main: com.elytraenchants.ElytraEnchantsPlugin
+api-version: '1.16'
+description: Allows elytra to be enchanted with chestplate enchantments
+author: YourName
+website: https://github.com/yourusername/elytra-enchants
+
+commands:
+  elytraenchant:
+    description: Enchant your elytra with a specific enchantment and level
+    usage: /elytraenchant <enchantment> <level>
+    permission: elytraenchant.use
+
+permissions:
+  elytraenchant.use:
+    description: Allows use of /elytraenchant command
+    default: op
+  elytraenchant.enchant.protection_environmental:
+    description: Allows enchanting elytra with Protection
+    default: op
+  elytraenchant.enchant.protection_fire:
+    description: Allows enchanting elytra with Fire Protection
+    default: op
+  elytraenchant.enchant.protection_explosions:
+    description: Allows enchanting elytra with Blast Protection
+    default: op
+  elytraenchant.enchant.protection_projectile:
+    description: Allows enchanting elytra with Projectile Protection
+    default: op
+  elytraenchant.enchant.thorns:
+    description: Allows enchanting elytra with Thorns
+    default: op
+  elytraenchant.enchant.binding_curse:
+    description: Allows enchanting elytra with Binding Curse
+    default: op
+  elytraenchant.enchant.vanishing_curse:
+    description: Allows enchanting elytra with Vanishing Curse
+    default: op
+  elytraenchant.enchant.*:
+    description: Allows enchanting elytra with any allowed enchantment
+    default: op 
