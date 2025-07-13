@@ -45,6 +45,11 @@
 ## Support
 - if you encounter any issues or have questions, please create an issue on the GitHub repository. 
 
+## To-Do
+- Add more context to When Worn:
+- Combine actual chestplate along with enchantments to make "Armored Elytra"
+- Suggestions welcome!
+
 ---
 
 Enjoy safer flying! 
