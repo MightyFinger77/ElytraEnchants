@@ -1,8 +1,13 @@
+# Debug mode - set to true to enable detailed logging
+debug: false
+
 enchantments:
   PROTECTION_ENVIRONMENTAL: true
   PROTECTION_FIRE: true
   PROTECTION_EXPLOSIONS: true
   PROTECTION_PROJECTILE: true
   THORNS: true
+  MENDING: true
+  UNBREAKING: true
   BINDING_CURSE: true
   VANISHING_CURSE: true 
