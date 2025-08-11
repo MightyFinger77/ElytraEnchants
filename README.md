@@ -28,6 +28,9 @@
 - Open `plugins/ElytraEnchants/config.yml` to enable or disable specific enchantments.
 - Edit `plugins/ElytraEnchants/messages.yml` to change plugin messages.
 
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history and bug fixes.
+
 ## Permissions
 - `elytraenchant.use` — Use the `/elytraenchant` command
 - `elytraenchant.enchant.<enchantment>` — Use a specific enchantment
