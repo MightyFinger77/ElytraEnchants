@@ -1,13 +1,36 @@
 # Changelog
 
-## [1.1.0] - 2025-07-12
-### Initial Release
-- ElytraEnchants plugin released!
-- Add chestplate protection enchantments (Protection, Fire Protection, Blast Protection, Projectile Protection, Thorns, Binding Curse, Vanishing Curse) to elytra.
-- Combine elytras in an anvil to merge all enchantments.
-- Combine an elytra with an enchanted chestplate to apply enchants to elytra (you will lose the chestplate)
-- Use `/elytraenchant` command to apply enchantments (with permissions).
-- Configure allowed enchantments in `config.yml`.
-- Customize plugin messages in `messages.yml`.
-- User-focused README for easy setup.
-- Compatible with Minecraft 1.16–1.21.6 (Bukkit, Spigot, Paper, Purpur). 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.1] - 2025-08-11
+
+### Fixed
+- **Critical Bug**: Mending and Unbreaking enchantments could not be applied to elytra
+- **Critical Bug**: Books with multiple enchantments (e.g., Protection + Mending) only applied the allowed Prot enchantment, ignoring mending
+- **Critical Bug**: `/elytraenchant` command rejected Mending and Unbreaking enchantments
+
+### Added
+- Mending enchantment support for elytra
+- Unbreaking enchantment support for elytra
+- Debug logging for enchantment loading and application
+- Debug logging for command usage and validation
+
+### Changed
+- Enhanced logging for better troubleshooting (configurable via debug option)
+- Added debug configuration option (defaults to false)
+
+## [1.0.0] - Initial Release
+
+### Added
+- Basic elytra enchanting functionality
+- Support for Protection enchantments (Environmental, Fire, Blast, Projectile)
+- Support for Thorns enchantment
+- Support for Curse enchantments (Binding, Vanishing)
+- Anvil integration for applying enchantments
+- Command system for direct enchanting
+- Configuration system for enabling/disabling enchantments
+- Customizable messages
+- Permission system for enchantment usage 
