@@ -1,5 +1,5 @@
 name: ElytraEnchants
-version: '${project.version}'
+version: '1.0.1'
 main: com.elytraenchants.ElytraEnchantsPlugin
 api-version: '1.16'
 description: Allows elytra to be enchanted with chestplate enchantments
@@ -30,6 +30,12 @@ permissions:
     default: op
   elytraenchant.enchant.thorns:
     description: Allows enchanting elytra with Thorns
+    default: op
+  elytraenchant.enchant.mending:
+    description: Allows enchanting elytra with Mending
+    default: op
+  elytraenchant.enchant.unbreaking:
+    description: Allows enchanting elytra with Unbreaking
     default: op
   elytraenchant.enchant.binding_curse:
     description: Allows enchanting elytra with Binding Curse
