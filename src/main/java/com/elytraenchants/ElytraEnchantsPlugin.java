@@ -35,6 +35,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
 
     private final Set<Enchantment> allowedEnchantments = new HashSet<>();
     private YamlConfiguration messages;
+    private boolean debugMode;
 
     @Override
     public void onEnable() {
@@ -50,15 +51,38 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
     private void loadAllowedEnchantments() {
         allowedEnchantments.clear();
         FileConfiguration config = getConfig();
+        debugMode = config.getBoolean("debug", false);
         if (config.isConfigurationSection("enchantments")) {
             for (String key : config.getConfigurationSection("enchantments").getKeys(false)) {
                 if (config.getBoolean("enchantments." + key, true)) {
                     Enchantment ench = Enchantment.getByName(key);
                     if (ench != null) {
                         allowedEnchantments.add(ench);
+                        if (debugMode) {
+                            getLogger().info("Loaded allowed enchantment: " + key + " -> " + ench.getKey().getKey() + " (name: " + ench.getName() + ")");
+                        }
+                    } else {
+                        getLogger().warning("Could not find enchantment: " + key + " - trying alternative names...");
+                        // Try alternative names for common enchantments
+                        if (key.equals("UNBREAKING")) {
+                            ench = Enchantment.DURABILITY;
+                            if (ench != null) {
+                                allowedEnchantments.add(ench);
+                                getLogger().info("Loaded UNBREAKING as DURABILITY: " + ench.getKey().getKey());
+                            }
+                        } else if (key.equals("MENDING")) {
+                            ench = Enchantment.MENDING;
+                            if (ench != null) {
+                                allowedEnchantments.add(ench);
+                                getLogger().info("Loaded MENDING: " + ench.getKey().getKey());
+                            }
+                        }
                     }
                 }
             }
+        }
+        if (debugMode) {
+            getLogger().info("Total allowed enchantments: " + allowedEnchantments.size());
         }
     }
 
@@ -134,12 +158,22 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
             ItemStack result = first.clone();
             boolean changed = false;
             EnchantmentStorageMeta bookMeta = (EnchantmentStorageMeta) second.getItemMeta();
+            if (debugMode) {
+                getLogger().info("Applying book enchantments to elytra. Book contains: " + bookMeta.getStoredEnchants().keySet());
+            }
             for (Map.Entry<Enchantment, Integer> entry : bookMeta.getStoredEnchants().entrySet()) {
                 Enchantment ench = entry.getKey();
                 int level = entry.getValue();
                 if (allowedEnchantments.contains(ench)) {
                     result.addUnsafeEnchantment(ench, level);
                     changed = true;
+                    if (debugMode) {
+                        getLogger().info("Applied enchantment: " + ench.getName() + " level " + level);
+                    }
+                } else {
+                    if (debugMode) {
+                        getLogger().info("Skipped enchantment (not allowed): " + ench.getName());
+                    }
                 }
             }
             if (rename != null && !rename.isEmpty()) {
@@ -269,6 +303,9 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
         String enchName = args[0].toUpperCase();
         Enchantment ench = Enchantment.getByName(enchName);
         if (ench == null || !allowedEnchantments.contains(ench)) {
+            if (debugMode) {
+                getLogger().info("Player " + player.getName() + " tried to use enchantment: " + enchName + " (ench: " + ench + ", allowed: " + allowedEnchantments.contains(ench) + ")");
+            }
             sender.sendMessage(msg("enchant-not-allowed"));
             return true;
         }
@@ -293,8 +330,13 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equalsIgnoreCase("elytraenchant")) {
             if (args.length == 1) {
+                if (debugMode) {
+                    getLogger().info("Tab completion - allowed enchantments: " + allowedEnchantments.stream()
+                            .map(e -> e.getKey().getKey() + " (name: " + e.getName() + ")")
+                            .collect(Collectors.joining(", ")));
+                }
                 return allowedEnchantments.stream()
-                        .map(e -> e.getName().toLowerCase())
+                        .map(e -> e.getKey().getKey().toLowerCase())
                         .filter(e -> e.startsWith(args[0].toLowerCase()))
                         .collect(Collectors.toList());
             } else if (args.length == 2) {
