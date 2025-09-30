@@ -3,8 +3,7 @@ version: '1.0.1'
 main: com.elytraenchants.ElytraEnchantsPlugin
 api-version: '1.16'
 description: Allows elytra to be enchanted with chestplate enchantments
-author: [MightyFInger77]
-website: https://github.com/yourusername/elytra-enchants
+authors: [MightyFinger77]
 
 commands:
   elytraenchant:
@@ -46,4 +45,3 @@ permissions:
   elytraenchant.enchant.*:
     description: Allows enchanting elytra with any allowed enchantment
     default: op 
-

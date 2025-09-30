@@ -31,4 +31,3 @@ All notable changes to this project will be documented in this file.
 - Configuration system for enabling/disabling enchantments
 - Customizable messages
 - Permission system for enchantment usage 
-
