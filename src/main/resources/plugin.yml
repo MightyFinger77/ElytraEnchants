@@ -1,5 +1,5 @@
 name: ElytraEnchants
-version: '1.0.1'
+version: '1.0.2'
 main: com.elytraenchants.ElytraEnchantsPlugin
 api-version: '1.16'
 description: Allows elytra to be enchanted with chestplate enchantments
@@ -10,6 +10,11 @@ commands:
     description: Enchant your elytra with a specific enchantment and level
     usage: /elytraenchant <enchantment> <level>
     permission: elytraenchant.use
+  elytraenchants:
+    description: Reload the plugin configuration
+    usage: /elytraenchants reload
+    permission: elytraenchants.reload
+    aliases: [ee]
 
 permissions:
   elytraenchant.use:
@@ -44,4 +49,7 @@ permissions:
     default: op
   elytraenchant.enchant.*:
     description: Allows enchanting elytra with any allowed enchantment
+    default: op
+  elytraenchants.reload:
+    description: Allows reloading the plugin configuration
     default: op 
