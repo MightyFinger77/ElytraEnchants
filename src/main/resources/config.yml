@@ -1,6 +1,10 @@
 # Debug mode - set to true to enable detailed logging
 debug: false
 
+# Update checker settings
+update-checker:
+  enabled: true
+
 enchantments:
   PROTECTION_ENVIRONMENTAL: true
   PROTECTION_FIRE: true

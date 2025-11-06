@@ -74,7 +74,9 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
         }
         
         // Check for updates asynchronously
-        checkForUpdates();
+        if (getConfig().getBoolean("update-checker.enabled", true)) {
+            checkForUpdates();
+        }
     }
     
     private void loadConfig() {
