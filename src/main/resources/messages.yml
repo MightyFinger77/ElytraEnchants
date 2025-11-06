@@ -1,7 +1,7 @@
 no-permission: "&cYou do not have permission to use this command!"
 no-permission-enchant: "&cYou do not have permission to use this enchantment!"
 not-a-player: "&cOnly players can use this command."
-usage: "&eUsage: /elytraenchant <enchantment> <level>"
+usage: "&eUsage: /elytraenchants <enchant|reload>"
 not-wearing-elytra: "&cYou must be wearing an elytra."
 enchant-not-allowed: "&cThat enchantment is not allowed on elytra."
 invalid-level: "&cInvalid level."

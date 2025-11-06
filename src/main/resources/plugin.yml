@@ -6,48 +6,47 @@ description: Allows elytra to be enchanted with chestplate enchantments
 authors: [MightyFinger77]
 
 commands:
-  elytraenchant:
-    description: Enchant your elytra with a specific enchantment and level
-    usage: /elytraenchant <enchantment> <level>
-    permission: elytraenchant.use
   elytraenchants:
-    description: Reload the plugin configuration
-    usage: /elytraenchants reload
-    permission: elytraenchants.reload
+    description: ElytraEnchants main command
+    usage: /elytraenchants <enchant|reload>
+    permission: elytraenchants.use
     aliases: [ee]
 
 permissions:
-  elytraenchant.use:
-    description: Allows use of /elytraenchant command
+  elytraenchants.use:
+    description: Allows use of /elytraenchants command
     default: op
-  elytraenchant.enchant.protection_environmental:
+  elytraenchants.enchant:
+    description: Allows use of /elytraenchants enchant command
+    default: op
+  elytraenchants.enchant.protection_environmental:
     description: Allows enchanting elytra with Protection
     default: op
-  elytraenchant.enchant.protection_fire:
+  elytraenchants.enchant.protection_fire:
     description: Allows enchanting elytra with Fire Protection
     default: op
-  elytraenchant.enchant.protection_explosions:
+  elytraenchants.enchant.protection_explosions:
     description: Allows enchanting elytra with Blast Protection
     default: op
-  elytraenchant.enchant.protection_projectile:
+  elytraenchants.enchant.protection_projectile:
     description: Allows enchanting elytra with Projectile Protection
     default: op
-  elytraenchant.enchant.thorns:
+  elytraenchants.enchant.thorns:
     description: Allows enchanting elytra with Thorns
     default: op
-  elytraenchant.enchant.mending:
+  elytraenchants.enchant.mending:
     description: Allows enchanting elytra with Mending
     default: op
-  elytraenchant.enchant.unbreaking:
+  elytraenchants.enchant.unbreaking:
     description: Allows enchanting elytra with Unbreaking
     default: op
-  elytraenchant.enchant.binding_curse:
+  elytraenchants.enchant.binding_curse:
     description: Allows enchanting elytra with Binding Curse
     default: op
-  elytraenchant.enchant.vanishing_curse:
+  elytraenchants.enchant.vanishing_curse:
     description: Allows enchanting elytra with Vanishing Curse
     default: op
-  elytraenchant.enchant.*:
+  elytraenchants.enchant.*:
     description: Allows enchanting elytra with any allowed enchantment
     default: op
   elytraenchants.reload:

@@ -66,9 +66,8 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
         loadAllowedEnchantments();
         loadMessages();
         Bukkit.getPluginManager().registerEvents(this, this);
-        getCommand("elytraenchant").setExecutor(this);
-        getCommand("elytraenchant").setTabCompleter(this);
         getCommand("elytraenchants").setExecutor(this);
+        getCommand("elytraenchants").setTabCompleter(this);
         if (debugMode) {
             getLogger().info("ElytraEnchantsPlugin enabled!");
         }
@@ -1074,85 +1073,134 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // Handle reload command
-        if (command.getName().equalsIgnoreCase("elytraenchants")) {
+        if (!command.getName().equalsIgnoreCase("elytraenchants")) {
+            return false;
+        }
+        
+        if (!sender.hasPermission("elytraenchants.use")) {
+            sender.sendMessage(msg("no-permission"));
+            return true;
+        }
+        
+        if (args.length == 0) {
+            sender.sendMessage(msg("usage"));
+            return true;
+        }
+        
+        String subCommand = args[0].toLowerCase();
+        
+        // Handle reload subcommand
+        if (subCommand.equals("reload")) {
             if (!sender.hasPermission("elytraenchants.reload")) {
                 sender.sendMessage(msg("reload-no-permission"));
                 return true;
             }
-            if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-                reloadConfig();
-                loadMessages();
-                sender.sendMessage(msg("reload-success"));
-                return true;
-            }
-            sender.sendMessage(msg("reload-usage"));
+            reloadConfig();
+            loadMessages();
+            sender.sendMessage(msg("reload-success"));
             return true;
         }
         
-        // Handle elytraenchant command
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(msg("not-a-player"));
-            return true;
-        }
-        if (!sender.hasPermission("elytraenchant.use")) {
-            sender.sendMessage(msg("no-permission"));
-            return true;
-        }
-        if (args.length < 2) {
-            sender.sendMessage(msg("usage"));
-            return true;
-        }
-        ItemStack chest = player.getInventory().getChestplate();
-        if (chest == null || chest.getType() != Material.ELYTRA) {
-            sender.sendMessage(msg("not-wearing-elytra"));
-            return true;
-        }
-        String enchName = args[0].toUpperCase();
-        Enchantment ench = Enchantment.getByName(enchName);
-        if (ench == null || !allowedEnchantments.contains(ench)) {
-            if (debugMode) {
-                getLogger().info("Player " + player.getName() + " tried to use enchantment: " + enchName + " (ench: " + ench + ", allowed: " + allowedEnchantments.contains(ench) + ")");
+        // Handle enchant subcommand
+        if (subCommand.equals("enchant")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage(msg("not-a-player"));
+                return true;
             }
-            sender.sendMessage(msg("enchant-not-allowed"));
+            if (!sender.hasPermission("elytraenchants.enchant")) {
+                sender.sendMessage(msg("no-permission-enchant"));
+                return true;
+            }
+            if (args.length < 3) {
+                sender.sendMessage(msg("usage"));
+                return true;
+            }
+            ItemStack chest = player.getInventory().getChestplate();
+            if (chest == null || chest.getType() != Material.ELYTRA) {
+                sender.sendMessage(msg("not-wearing-elytra"));
+                return true;
+            }
+            String enchName = args[1].toUpperCase();
+            Enchantment ench = Enchantment.getByName(enchName);
+            if (ench == null || !allowedEnchantments.contains(ench)) {
+                if (debugMode) {
+                    getLogger().info("Player " + player.getName() + " tried to use enchantment: " + enchName + " (ench: " + ench + ", allowed: " + allowedEnchantments.contains(ench) + ")");
+                }
+                sender.sendMessage(msg("enchant-not-allowed"));
+                return true;
+            }
+            String permNode = "elytraenchants.enchant." + enchName.toLowerCase();
+            if (!sender.hasPermission(permNode) && !sender.hasPermission("elytraenchants.enchant.*")) {
+                sender.sendMessage(msg("no-permission-enchant"));
+                return true;
+            }
+            int level;
+            try {
+                level = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(msg("invalid-level"));
+                return true;
+            }
+            chest.addUnsafeEnchantment(ench, level);
+            sender.sendMessage(msg("success").replace("%enchant%", ench.getKey().getKey()).replace("%level%", String.valueOf(level)));
             return true;
         }
-        String permNode = "elytraenchant.enchant." + enchName.toLowerCase();
-        if (!sender.hasPermission(permNode) && !sender.hasPermission("elytraenchant.enchant.*")) {
-            sender.sendMessage(msg("no-permission-enchant"));
-            return true;
-        }
-        int level;
-        try {
-            level = Integer.parseInt(args[1]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage(msg("invalid-level"));
-            return true;
-        }
-        chest.addUnsafeEnchantment(ench, level);
-        sender.sendMessage(msg("success").replace("%enchant%", ench.getKey().getKey()).replace("%level%", String.valueOf(level)));
+        
+        // Unknown subcommand
+        sender.sendMessage(msg("usage"));
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equalsIgnoreCase("elytraenchant")) {
-            if (args.length == 1) {
-                if (debugMode) {
-                    getLogger().info("Tab completion - allowed enchantments: " + allowedEnchantments.stream()
-                            .map(e -> e.getKey().getKey() + " (name: " + e.getName() + ")")
-                            .collect(Collectors.joining(", ")));
-                }
-                return allowedEnchantments.stream()
-                        .map(e -> e.getKey().getKey().toLowerCase())
-                        .filter(e -> e.startsWith(args[0].toLowerCase()))
-                        .collect(Collectors.toList());
-            } else if (args.length == 2) {
-                return List.of("1", "2", "3", "4", "5").stream()
-                        .filter(l -> l.startsWith(args[1]))
-                        .collect(Collectors.toList());
-            }
+        if (!command.getName().equalsIgnoreCase("elytraenchants")) {
+            return List.of();
         }
+        
+        if (!sender.hasPermission("elytraenchants.use")) {
+            return List.of();
+        }
+        
+        if (args.length == 1) {
+            // Tab complete subcommands
+            List<String> subcommands = new ArrayList<>();
+            if (sender.hasPermission("elytraenchants.reload")) {
+                subcommands.add("reload");
+            }
+            if (sender.hasPermission("elytraenchants.enchant")) {
+                subcommands.add("enchant");
+            }
+            return subcommands.stream()
+                    .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        
+        if (args.length == 2 && args[0].equalsIgnoreCase("enchant")) {
+            // Tab complete enchantments
+            if (!sender.hasPermission("elytraenchants.enchant")) {
+                return List.of();
+            }
+            if (debugMode) {
+                getLogger().info("Tab completion - allowed enchantments: " + allowedEnchantments.stream()
+                        .map(e -> e.getKey().getKey() + " (name: " + e.getName() + ")")
+                        .collect(Collectors.joining(", ")));
+            }
+            return allowedEnchantments.stream()
+                    .map(e -> e.getKey().getKey().toLowerCase())
+                    .filter(e -> e.startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        
+        if (args.length == 3 && args[0].equalsIgnoreCase("enchant")) {
+            // Tab complete enchantment levels
+            if (!sender.hasPermission("elytraenchants.enchant")) {
+                return List.of();
+            }
+            return List.of("1", "2", "3", "4", "5").stream()
+                    .filter(l -> l.startsWith(args[2]))
+                    .collect(Collectors.toList());
+        }
+        
         return List.of();
     }
 } 
