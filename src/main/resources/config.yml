@@ -1,3 +1,7 @@
+# ElytraEnchants Configuration File
+# Config version - do not modify
+config_version: 1
+
 # Debug mode - set to true to enable detailed logging
 debug: false
 

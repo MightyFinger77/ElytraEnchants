@@ -1,3 +1,7 @@
+# ElytraEnchants Messages Configuration
+# Messages version - do not modify
+messages_version: 1
+
 no-permission: "&cYou do not have permission to use this command!"
 no-permission-enchant: "&cYou do not have permission to use this enchantment!"
 not-a-player: "&cOnly players can use this command."

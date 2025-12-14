@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - TBD
+
+### Added
+- Config migration system to preserve user settings when updating
+- Version tracking for config and messages files
+
+### Changed
+- Improved version comparison logic for dev versions and release versions
+
+## [1.0.2] - TBD
+
+### Added
+- Update checker system
+
 ## [1.0.1] - 2025-08-11
 
 ### Fixed
