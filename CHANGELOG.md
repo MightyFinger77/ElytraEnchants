@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.3] - TBD
+## [1.0.3] - 12/14/2025
 
 ### Added
 - Config migration system to preserve user settings when updating

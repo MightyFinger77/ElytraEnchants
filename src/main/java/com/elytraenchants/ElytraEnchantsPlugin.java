@@ -853,6 +853,32 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
     }
 
     /**
+     * Public method to manually check for updates (can be called from commands)
+     */
+    public void checkForUpdatesManually() {
+        checkForUpdatesManually(null);
+    }
+    
+    /**
+     * Public method to manually check for updates with player feedback
+     */
+    public void checkForUpdatesManually(org.bukkit.entity.Player player) {
+        if (getConfig().getBoolean("update-checker.enabled", true)) {
+            if (debugMode) {
+                getLogger().info("Manually checking for updates...");
+            }
+            checkForUpdates(player);
+        } else {
+            if (debugMode) {
+                getLogger().info("Update checking is disabled in config");
+            }
+            if (player != null) {
+                player.sendMessage("§c[ElytraEnchants] Update checking is disabled in config");
+            }
+        }
+    }
+    
+    /**
      * Check for plugin updates using SpigotMC API
      */
     private void checkForUpdates() {
@@ -1274,6 +1300,21 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
             return true;
         }
         
+        // Handle update subcommand
+        if (subCommand.equals("update")) {
+            if (!sender.hasPermission("elytraenchants.update")) {
+                sender.sendMessage(msg("no-permission"));
+                return true;
+            }
+            if (sender instanceof org.bukkit.entity.Player) {
+                checkForUpdatesManually((org.bukkit.entity.Player) sender);
+            } else {
+                checkForUpdatesManually();
+                sender.sendMessage("Checking for updates...");
+            }
+            return true;
+        }
+        
         // Handle enchant subcommand
         if (subCommand.equals("enchant")) {
             if (!(sender instanceof Player player)) {
@@ -1342,6 +1383,9 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
             }
             if (sender.hasPermission("elytraenchants.enchant")) {
                 subcommands.add("enchant");
+            }
+            if (sender.hasPermission("elytraenchants.update")) {
+                subcommands.add("update");
             }
             return subcommands.stream()
                     .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
