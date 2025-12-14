@@ -6,7 +6,7 @@
 
     <groupId>com.elytraenchants</groupId>
     <artifactId>elytra-enchants</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>ElytraEnchants</name>

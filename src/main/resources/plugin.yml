@@ -1,5 +1,5 @@
 name: ElytraEnchants
-version: '1.0.3'
+version: '${project.version}'
 main: com.elytraenchants.ElytraEnchantsPlugin
 api-version: '1.16'
 description: Allows elytra to be enchanted with chestplate enchantments

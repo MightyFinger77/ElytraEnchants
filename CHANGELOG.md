@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 12/14/2025
+
+### Changed
+- Improved dev-to-dev version comparison logic (e.g., Dev1a → Dev1b, Dev3b → Dev4a)
+- Updated plugin.yml to use `${project.version}` placeholder for automatic version management
+
 ## [1.0.3] - 12/14/2025
 
 ### Added
