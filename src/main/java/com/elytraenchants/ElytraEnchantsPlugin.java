@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.command.Command;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExecutor {
 
@@ -49,6 +51,54 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
     // Store update info for new players
     private String latestVersion = null;
     private boolean updateAvailable = false;
+
+    /** Folia only — do not use {@code getGlobalRegionScheduler()} for detection; Paper exposes it too. */
+    private boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException ignored) {
+            return false;
+        }
+    }
+
+    private void runSync(Runnable task) {
+        if (isFolia()) {
+            try {
+                Object scheduler = getServer().getClass().getMethod("getGlobalRegionScheduler").invoke(getServer());
+                scheduler.getClass().getMethod("execute", Plugin.class, Runnable.class).invoke(scheduler, this, task);
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+        getServer().getScheduler().runTask(this, task);
+    }
+
+    private void runLater(Runnable task, long delayTicks) {
+        if (isFolia()) {
+            try {
+                Object scheduler = getServer().getClass().getMethod("getGlobalRegionScheduler").invoke(getServer());
+                scheduler.getClass().getMethod("runDelayed", Plugin.class, Consumer.class, long.class)
+                        .invoke(scheduler, this, (Consumer<Object>) t -> task.run(), delayTicks);
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+        getServer().getScheduler().runTaskLater(this, task, delayTicks);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void runAsync(Runnable task) {
+        if (isFolia()) {
+            try {
+                Object async = getServer().getClass().getMethod("getAsyncScheduler").invoke(getServer());
+                async.getClass().getMethod("runNow", Plugin.class, Consumer.class)
+                        .invoke(async, this, (Consumer<Object>) st -> task.run());
+                return;
+            } catch (Exception ignored) { }
+        }
+        getServer().getScheduler().runTaskAsynchronously(this, task);
+    }
 
     @Override
     public void onEnable() {
@@ -172,6 +222,21 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
         loadAllowedEnchantments();
     }
     
+    private boolean hasMissingLeafKeysComparedToJarDefaults(YamlConfiguration current, YamlConfiguration defaults, String fileVersionKey) {
+        java.util.List<String> missing = new java.util.ArrayList<>();
+        for (String key : defaults.getKeys(true)) {
+            if (defaults.isConfigurationSection(key)) continue;
+            if (key.equals(fileVersionKey)) continue;
+            if (key.equals("config_version") || key.equals("messages_version") || key.equals("gui_version")) continue;
+            if (!current.contains(key)) missing.add(key);
+        }
+        if (!missing.isEmpty()) {
+            getLogger().info("Config migration: merging missing keys from jar defaults: " + String.join(", ", missing));
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Migrate config.yml to add missing options from newer versions
      * Preserves user values while adding new options and comments
@@ -214,8 +279,8 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
             int defaultVersion = defaultConfig.getInt("config_version", 1);
             int currentVersion = currentConfig.getInt("config_version", 0); // 0 means old config without version
             
-            // If versions match and config has version field, no migration needed
-            if (currentVersion == defaultVersion && currentConfig.contains("config_version")) {
+            boolean missingLeaves = hasMissingLeafKeysComparedToJarDefaults(currentConfig, defaultConfig, "config_version");
+            if (currentVersion == defaultVersion && currentConfig.contains("config_version") && !missingLeaves) {
                 return; // Config is up to date
             }
             
@@ -650,8 +715,8 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
             int defaultVersion = defaultConfig.getInt(versionKey, 1);
             int currentVersion = currentConfig.getInt(versionKey, 0); // 0 means old config without version
             
-            // If versions match and config has version field, no migration needed
-            if (currentVersion == defaultVersion && currentConfig.contains(versionKey)) {
+            boolean missingLeaves = hasMissingLeafKeysComparedToJarDefaults(currentConfig, defaultConfig, versionKey);
+            if (currentVersion == defaultVersion && currentConfig.contains(versionKey) && !missingLeaves) {
                 return; // Config is up to date
             }
             
@@ -889,7 +954,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
      * Check for plugin updates using SpigotMC API with player feedback
      */
     private void checkForUpdates(org.bukkit.entity.Player player) {
-        getServer().getScheduler().runTaskAsynchronously(this, () -> {
+        runAsync(() -> {
             try {
                 String url = "https://api.spigotmc.org/legacy/update.php?resource=" + SPIGOT_RESOURCE_ID;
                 java.net.URLConnection connection = java.net.URI.create(url).toURL().openConnection();
@@ -914,7 +979,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
                     this.latestVersion = latestVersion;
                     this.updateAvailable = true;
                     
-                    getServer().getScheduler().runTask(this, () -> {
+                    runSync(() -> {
                         String updateUrl = "https://www.spigotmc.org/resources/" + SPIGOT_RESOURCE_ID;
                         
                         if (debugMode) {
@@ -930,7 +995,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
                         }
                         
                         // Send update message to all online OP'd players with a delay to show after MOTD
-                        getServer().getScheduler().runTaskLater(this, () -> {
+                        runLater(() -> {
                             for (org.bukkit.entity.Player onlinePlayer : getServer().getOnlinePlayers()) {
                                 if (onlinePlayer.isOp() && (player == null || !onlinePlayer.equals(player))) {
                                     onlinePlayer.sendMessage(msg("update-available").replace("%latest%", latestVersion).replace("%current%", currentVersion));
@@ -947,7 +1012,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
                     
                     // Send "up to date" message to the player who requested the check
                     if (player != null) {
-                        getServer().getScheduler().runTask(this, () -> {
+                        runSync(() -> {
                             player.sendMessage(msg("update-up-to-date").replace("%version%", currentVersion));
                         });
                     }
@@ -959,7 +1024,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
                 
                 // Send error message to the player who requested the check
                 if (player != null) {
-                    getServer().getScheduler().runTask(this, () -> {
+                    runSync(() -> {
                         player.sendMessage(msg("update-error").replace("%error%", e.getMessage()));
                     });
                 }
@@ -1146,7 +1211,7 @@ public class ElytraEnchantsPlugin extends JavaPlugin implements Listener, TabExe
         if (updateAvailable && event.getPlayer().isOp()) {
             String currentVersion = getDescription().getVersion();
             String updateUrl = "https://www.spigotmc.org/resources/" + SPIGOT_RESOURCE_ID;
-            getServer().getScheduler().runTaskLater(this, () -> {
+            runLater(() -> {
                 event.getPlayer().sendMessage(msg("update-available").replace("%latest%", latestVersion).replace("%current%", currentVersion));
                 event.getPlayer().sendMessage(msg("update-download").replace("%url%", updateUrl));
             }, 100L); // 5 seconds delay (100 ticks = 5 seconds)

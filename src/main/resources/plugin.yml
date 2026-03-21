@@ -1,5 +1,5 @@
 name: ElytraEnchants
-version: '${project.version}'
+version: '1.1.0-Dev1a'
 main: com.elytraenchants.ElytraEnchantsPlugin
 api-version: '1.16'
 description: Allows elytra to be enchanted with chestplate enchantments
@@ -54,4 +54,6 @@ permissions:
     default: op
   elytraenchants.update:
     description: Allows checking for plugin updates
-    default: op 
+    default: op
+folia-supported: true
+
